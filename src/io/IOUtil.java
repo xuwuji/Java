@@ -11,12 +11,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * Basic operations about files
+ * Basic operations of java.io
  * 
- * @author wuxu
- * @time 2015Äê12ÔÂ18ÈÕ
+ * @author xuwuji
+ * @time Dec 19, 2015
  */
 public class IOUtil {
 
@@ -95,11 +97,12 @@ public class IOUtil {
 	public static long getFolderSize(File directory) {
 		long length = 0;
 
-		System.out.println("Directory:" + directory.getName());
+		// System.out.println("Directory:" + directory.getName());
 
 		for (File file : directory.listFiles()) {
 			if (file.isFile()) {
-				System.out.println("File:" + file.getName() + "  " + file.length()/1024/1024+"MB");
+				// System.out.println("File:" + file.getName() + " " +
+				// file.length() / 1024 / 1024 + "MB");
 				length += file.length();
 			}
 
@@ -109,6 +112,39 @@ public class IOUtil {
 
 		}
 		return length;
+	}
+
+	public File[] getFiles(File file) {
+		return file.listFiles();
+	}
+
+	public FileNode loop(File pointer) {
+		if (pointer == null) {
+			return null;
+		}
+
+		FileNode node = new FileNode();
+		node.file = pointer;
+		node.name = pointer.getName();
+		node.files = new ArrayList<FileNode>();
+		if (pointer.isFile()) {
+			node.size = pointer.length();
+		} else if (pointer.isDirectory()) {
+			node.size = getFolderSize(pointer);
+			// System.out.println(pointer.getName() + "------>");
+
+			File[] files = pointer.listFiles();
+
+			for (File file : files) {
+				// System.out.println(file.getName() + "");
+				FileNode sub_node = new FileNode();
+				// sub_node.name = file.getName();
+				sub_node.file = file;
+				sub_node = loop(sub_node.file);
+				node.files.add(sub_node);
+			}
+		}
+		return node;
 	}
 
 }
